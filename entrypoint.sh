@@ -2,13 +2,22 @@
 
 API_URL="$1"
 API_KEY="$2"
+CMD="$3"
+NAME="$4"
 
-HTTP_STATUS=$(curl -s -o /tmp/katana-ci-rsp.txt -w "%{http_code}" -H "Authorization: Bearer $API_KEY" "${API_URL}/start")
-if [ $HTTP_STATUS -eq 200 ]; then
-    KATANA_CI_NAME=$(cat /tmp/katana-ci-rsp.txt)
-    echo "KATANA_CI_NAME=${KATANA_CI_NAME}" >> $GITHUB_ENV
+if [ "${CMD}" == "start" ]; then
+
+    HTTP_STATUS=$(curl --write-out "%{http_code}" --output /tmp/katana-ci-rsp.txt  -H "Authorization: Bearer ${API_KEY}" "${API_URL}/start")
+
+    if [ $HTTP_STATUS -eq 200 ]; then
+        RSP_NAME=$(cat /tmp/katana-ci-rsp.txt)
+        echo "katana-name=${RSP_NAME}" >> $GITHUB_OUTPUT
+        echo "katana-rpc=${API_URL}/${RSP_NAME}/katana" >> $GITHUB_OUTPUT
+    else
+        echo "HTTP request returned status code ${HTTP_STATUS}, expected 200."
+        exit 1
+    fi
+
 else
-    echo "HTTP request returned status code ${HTTP_STATUS}, expected 200."
-    exit 1
+    curl -H "Authorization: Bearer ${API_KEY}" "${API_URL}/${NAME}/stop"
 fi
-
