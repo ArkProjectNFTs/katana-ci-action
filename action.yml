@@ -1,0 +1,18 @@
+name: 'Katana CI'
+description: 'Starts a Katana by interacting with a katana-ci-server.'
+inputs:
+  api-url:
+    description: 'API URL of the katana-ci-server'
+    required: true
+  api-key:
+    description: 'API KEY to start a Katana'
+    required: true
+outputs:
+  katana-name:
+    description: 'The name of the Katana started on the server'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.api-url }}
+    - ${{ inputs.api-key }}
